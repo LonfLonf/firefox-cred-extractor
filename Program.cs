@@ -48,11 +48,12 @@ class Program
             {
                 var filestream = File.OpenRead(Path);
                 var filecontent = new StreamContent(filestream);
-                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
-                formData.Add(filecontent, Path);
+                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("multipart/form-data");
+                formData.Add(filecontent, "files", System.IO.Path.GetFileName(Path));
+                formData.Add(new StringContent(Environment.UserName), "username");
             }
 
-            Uri uri = new Uri("HttpClient");
+            Uri uri = new Uri("http://4.228.217.126:5000/JustTwoOfUs");
 
             HttpResponseMessage responseMessage = await http.PostAsync(uri, formData);
         }
