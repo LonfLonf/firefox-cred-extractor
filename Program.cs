@@ -1,6 +1,5 @@
 ﻿using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+
 class Program
 {
     public static async Task Main(string[] args)
@@ -55,7 +54,7 @@ class Program
 
             Uri uri = new Uri("http://4.228.217.126:5000/JustTwoOfUs");
 
-            HttpResponseMessage responseMessage = await http.PostAsync(uri, formData);
+            await http.PostAsync(uri, formData);
         }
     }
 }
