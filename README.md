@@ -1,3 +1,2 @@
-# capivara-upgraded
+# firefox-cred-extractor
 
-Only capivara bara
